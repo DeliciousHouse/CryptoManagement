@@ -9,12 +9,13 @@ import { prisma } from '@/lib/db/prisma'
 import { deserializeScenario } from '@/lib/utils/scenario'
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default async function ScenarioPage({ params }: PageProps) {
+  const { id } = await params
   const scenario = await prisma.scenario.findUnique({
-    where: { id: params.id },
+    where: { id },
   })
 
   if (!scenario) {

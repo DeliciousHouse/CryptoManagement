@@ -5,11 +5,12 @@ import { deserializeScenario } from '@/lib/utils/scenario'
 // GET /api/scenarios/[id] - Get single scenario
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const scenario = await prisma.scenario.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!scenario) {
@@ -33,11 +34,12 @@ export async function GET(
 // DELETE /api/scenarios/[id] - Delete scenario
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     await prisma.scenario.delete({
-      where: { id: params.id },
+      where: { id },
     })
 
     return NextResponse.json({ success: true })
