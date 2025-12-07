@@ -70,13 +70,13 @@ The application will be available at `http://localhost:3000`
 1. **Build and start services**
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 2. **Run database migrations** (first time only)
 
 ```bash
-docker-compose exec web npx prisma migrate deploy
+docker compose exec web npx prisma migrate deploy
 ```
 
 3. **Access the application**
