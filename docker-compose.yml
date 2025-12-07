@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: cryptocoin-db
+    environment:
+      POSTGRES_USER: cryptocoin
+      POSTGRES_PASSWORD: cryptocoin
+      POSTGRES_DB: cryptocoin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cryptocoin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cryptocoin-web
+    environment:
+      DATABASE_URL: postgresql://cryptocoin:cryptocoin@db:5432/cryptocoin
+      NODE_ENV: production
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "npx prisma migrate deploy && node server.js"
+
+volumes:
+  postgres_data:
+
