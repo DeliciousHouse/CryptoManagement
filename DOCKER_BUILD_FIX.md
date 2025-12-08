@@ -27,9 +27,17 @@ This is a Docker Desktop BuildKit cache corruption issue. Here are the solutions
 
 If restarting doesn't work, temporarily disable BuildKit:
 
+**Option A: Use the build script**
 ```bash
-DOCKER_BUILDKIT=0 docker compose build --no-cache
+./docker-build.sh
 ```
+
+**Option B: Manual command**
+```bash
+DOCKER_BUILDKIT=0 COMPOSE_DOCKER_CLI_BUILD=0 docker compose build --no-cache
+```
+
+**Note**: If Docker Desktop is forcing BuildKit, you may need to restart Docker Desktop first (see Solution 1).
 
 ## Solution 3: Reset Docker Desktop (Last Resort)
 
