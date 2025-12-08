@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // url removed - now configured in prisma/config.ts
+  // url removed - now configured in prisma.config.ts
 }
 
 model Scenario {

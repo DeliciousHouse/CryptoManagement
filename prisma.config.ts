@@ -1,8 +1,6 @@
 import { defineConfig } from 'prisma/config'
-import { config } from 'dotenv'
 
-config()
-
+// In Docker, environment variables are already available, no need for dotenv
 export default defineConfig({
   schema: 'prisma/schema.prisma',
   datasource: {
