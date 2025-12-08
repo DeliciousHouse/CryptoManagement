@@ -11,19 +11,41 @@ export function ContactForm() {
     message: '',
   })
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
+    setLoading(true)
 
-    // Log to console for now (as per plan)
-    console.log('Contact form submission:', formData)
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-    // In production, this would POST to /api/contact
-    setSubmitted(true)
-    setTimeout(() => {
-      setSubmitted(false)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message')
+      }
+
+      // Success
+      setSubmitted(true)
       setFormData({ name: '', email: '', message: '' })
-    }, 3000)
+      setTimeout(() => {
+        setSubmitted(false)
+      }, 3000)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send message. Please try again.')
+      console.error('Error submitting contact form:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -67,8 +89,23 @@ export function ContactForm() {
               required
             />
           </div>
-          <Button type="submit" variant="primary" size="lg" className="w-full">
-            {submitted ? 'Message Sent!' : 'Send Message'}
+          {error && (
+            <div className="p-3 bg-red-500/20 border border-red-500 rounded-lg text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            className="w-full"
+            disabled={loading || submitted}
+          >
+            {loading
+              ? 'Sending...'
+              : submitted
+              ? 'Message Sent!'
+              : 'Send Message'}
           </Button>
         </form>
       </div>
