@@ -73,10 +73,10 @@ The application will be available at `http://localhost:3000`
 docker compose up -d
 ```
 
-2. **Run database migrations** (first time only)
+2. **Run database migrations manually** (first time only, from your host shell)
 
 ```bash
-docker compose exec web npx prisma migrate deploy
+npx prisma migrate deploy
 ```
 
 3. **Access the application**
