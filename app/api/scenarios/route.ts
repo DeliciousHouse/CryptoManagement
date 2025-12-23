@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db/prisma'
 import { serializeScenario, deserializeScenario } from '@/lib/utils/scenario'
 import { z } from 'zod'
+import { Prisma } from '@prisma/client'
+
+function toPrismaJson(value: unknown): Prisma.InputJsonValue {
+  // Ensures the value is JSON-serializable and strips `unknown` index signatures from Zod passthrough objects.
+  return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue
+}
 
 const createScenarioSchema = z.object({
   name: z.string().optional(),
@@ -12,7 +18,10 @@ const createScenarioSchema = z.object({
     energyCost: z.number(),
     btcPrice: z.number(),
     poolFee: z.number(),
-  }),
+    networkDifficulty: z.number().optional(),
+    blockRewardBtc: z.number().optional(),
+    hardwareCostUsd: z.number().optional(),
+  }).passthrough(),
   plannerData: z.object({
     containerCount: z.number(),
     generatorCount: z.number(),
@@ -69,8 +78,8 @@ export async function POST(request: NextRequest) {
       data: {
         name: validated.name,
         email: validated.email,
-        calculatorData: validated.calculatorData,
-        plannerData: validated.plannerData,
+        calculatorData: toPrismaJson(validated.calculatorData),
+        plannerData: toPrismaJson(validated.plannerData),
       },
     })
 

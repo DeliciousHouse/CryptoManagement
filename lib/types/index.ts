@@ -5,6 +5,9 @@ export interface CalculatorInputs {
   energyCost: number; // $/kWh
   btcPrice: number; // USD
   poolFee: number; // percentage (0-100)
+  networkDifficulty?: number; // optional, for display / future formula upgrades
+  blockRewardBtc?: number; // optional, BTC
+  hardwareCostUsd?: number; // optional, USD (capex)
 }
 
 // Profit Calculation Results
@@ -19,6 +22,7 @@ export interface ProfitResult {
   yearlyCost: number;
   yearlyProfit: number;
   roi: number; // percentage
+  btcPerMonthPerTh: number; // canonical yield assumption used for reward forecasts
 }
 
 // Capacity Inputs

@@ -31,15 +31,26 @@ export function PlannerControls({
       const containerLength = params.containerLength
       const spacing = params.spacing
 
+      // Ensure the grid can actually fit the requested container count.
+      // Default rows/columns are small (2x3 => 6), so we auto-expand rows as containerCount increases.
+      const safeColumns = Math.max(1, params.columns)
+      const neededRows = safeColumns > 0 ? Math.ceil(inputs.containerCount / safeColumns) : 1
+      const safeRows = Math.max(1, Math.max(params.rows, neededRows))
+      const effectiveParams: LayoutParameters = {
+        ...params,
+        rows: safeRows,
+        columns: safeColumns,
+      }
+
       let containerIndex = 0
       for (
         let row = 0;
-        row < params.rows && containerIndex < inputs.containerCount;
+        row < effectiveParams.rows && containerIndex < inputs.containerCount;
         row++
       ) {
         for (
           let col = 0;
-          col < params.columns && containerIndex < inputs.containerCount;
+          col < effectiveParams.columns && containerIndex < inputs.containerCount;
           col++
         ) {
           const x = col * (containerWidth + spacing) + containerWidth / 2
@@ -83,7 +94,7 @@ export function PlannerControls({
         ...inputs,
         containers,
         generators,
-        layoutParameters: params,
+        layoutParameters: effectiveParams,
       })
     },
     [inputs, onInputsChange]
