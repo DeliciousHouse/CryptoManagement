@@ -217,7 +217,7 @@ export function MiningProfitability() {
                 USD
               </div>
               <div className="text-xs text-gray-500 mt-2 leading-relaxed">
-                Disclaimer: The estimated mining rewards are based on a statistical calculation using the values entered and do not account for difficulty and/or exchange rate fluctuations, stale/reject/orphan rates, and/or a pool's mining luck.
+                Disclaimer: The estimated mining rewards are based on a statistical calculation using the values entered and do not account for difficulty and/or exchange rate fluctuations, stale/reject/orphan rates, and/or a pool’s mining luck.
               </div>
             </div>
           </Card>
@@ -403,4 +403,3 @@ export function MiningProfitability() {
     </div>
   )
 }
-

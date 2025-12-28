@@ -21,8 +21,8 @@ export function serializeScenario(scenario: MiningScenario): {
  * Deserialize database JSON to MiningScenario
  */
 export function deserializeScenario(data: {
-  calculatorData: any
-  plannerData: any
+  calculatorData: CalculatorInputs
+  plannerData: PlannerInputs
   id: string
   name?: string | null
   email?: string | null
@@ -39,4 +39,3 @@ export function deserializeScenario(data: {
     updatedAt: data.updatedAt,
   }
 }
-

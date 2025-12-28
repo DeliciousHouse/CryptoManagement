@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { LoginButtons } from '@/components/auth/LoginButtons'
 
 export function Nav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -32,6 +33,9 @@ export function Nav() {
             >
               Home
             </Link>
+            <div className="pl-2">
+              <LoginButtons />
+            </div>
           </div>
           <button
             className="md:hidden text-foreground"
@@ -84,10 +88,10 @@ export function Nav() {
             >
               Home
             </Link>
+            <LoginButtons layout="stack" />
           </div>
         )}
       </div>
     </nav>
   )
 }
-
