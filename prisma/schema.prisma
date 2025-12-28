@@ -23,3 +23,14 @@ model Scenario {
   @@index([createdAt])
 }
 
+model User {
+  id                     String   @id @default(cuid())
+  email                  String   @unique
+  name                   String?
+  avatarUrl              String?  @map("avatar_url")
+  oauthProvider          String   @map("oauth_provider")
+  oauthProviderUserId    String   @map("oauth_provider_user_id")
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  @@unique([oauthProvider, oauthProviderUserId])
+}
