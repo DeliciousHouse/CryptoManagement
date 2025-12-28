@@ -8,6 +8,14 @@ export interface CalculatorInputs {
   networkDifficulty?: number; // optional, for display / future formula upgrades
   blockRewardBtc?: number; // optional, BTC
   hardwareCostUsd?: number; // optional, USD (capex)
+  marketSnapshot?: MarketSnapshot; // optional snapshot used (for deterministic saved scenarios)
+}
+
+export interface MarketSnapshot {
+  btcPriceUsd: number
+  difficulty: number
+  blockRewardBtc: number
+  updatedAt: string // ISO timestamp
 }
 
 // Profit Calculation Results

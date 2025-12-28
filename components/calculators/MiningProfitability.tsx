@@ -1,13 +1,18 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import { calculateMiningProfit } from '@/lib/calculations/profitability'
-import { CalculatorInputs } from '@/lib/types'
+import { CalculatorInputs, MarketSnapshot } from '@/lib/types'
 import { buildRewardForecasts } from '@/lib/utils/rewardForecasts'
 
 export function MiningProfitability() {
+  const [networkMode, setNetworkMode] = useState<'live' | 'manual'>('manual')
+  const [latestSnapshot, setLatestSnapshot] = useState<MarketSnapshot | null>(null)
+  const [snapshotLoading, setSnapshotLoading] = useState(false)
+  const [snapshotError, setSnapshotError] = useState<string | null>(null)
+
   const [inputs, setInputs] = useState<CalculatorInputs>({
     hashrate: 390, // TH/s
     powerConsumption: 7.215, // kW
@@ -18,6 +23,41 @@ export function MiningProfitability() {
     blockRewardBtc: 3.13,
     hardwareCostUsd: 13699.0,
   })
+
+  const loadLatestNetworkData = async () => {
+    setSnapshotLoading(true)
+    setSnapshotError(null)
+    try {
+      const res = await fetch('/api/market/latest')
+      if (!res.ok) throw new Error(`Failed to load latest network data: ${res.status}`)
+      const data = (await res.json()) as MarketSnapshot
+
+      setLatestSnapshot(data)
+      setInputs((prev) => ({
+        ...prev,
+        btcPrice: data.btcPriceUsd,
+        networkDifficulty: data.difficulty,
+        blockRewardBtc: data.blockRewardBtc,
+        marketSnapshot: data,
+      }))
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Failed to load latest network data'
+      setSnapshotError(message)
+      setNetworkMode('manual')
+      setInputs((prev) => ({ ...prev, marketSnapshot: undefined }))
+    } finally {
+      setSnapshotLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (networkMode === 'live') {
+      void loadLatestNetworkData()
+    } else {
+      setInputs((prev) => ({ ...prev, marketSnapshot: undefined }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [networkMode])
 
   const results = useMemo(() => calculateMiningProfit(inputs), [inputs])
   const rewardForecasts = useMemo(
@@ -50,6 +90,51 @@ export function MiningProfitability() {
         <div className="space-y-6">
           <Card>
             <h3 className="text-xl font-semibold mb-6">Input Parameters</h3>
+
+            <div className="mb-6 p-4 bg-surface rounded-lg border border-border">
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-wrap items-center gap-6">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name="networkMode"
+                      checked={networkMode === 'live'}
+                      onChange={() => setNetworkMode('live')}
+                    />
+                    Use live network data
+                  </label>
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="radio"
+                      name="networkMode"
+                      checked={networkMode === 'manual'}
+                      onChange={() => setNetworkMode('manual')}
+                    />
+                    Manual values
+                  </label>
+                  {networkMode === 'live' && (
+                    <button
+                      type="button"
+                      onClick={loadLatestNetworkData}
+                      disabled={snapshotLoading}
+                      className="text-sm text-accent-mining hover:underline disabled:opacity-50"
+                    >
+                      {snapshotLoading ? 'Refreshing…' : 'Refresh'}
+                    </button>
+                  )}
+                </div>
+
+                {networkMode === 'live' && latestSnapshot?.updatedAt && (
+                  <div className="text-xs text-gray-400">
+                    Updated: {new Date(latestSnapshot.updatedAt).toLocaleString()}
+                  </div>
+                )}
+                {snapshotError && (
+                  <div className="text-xs text-red-400">{snapshotError}</div>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-4">
               <Input
                 label="Hashrate (TH/s)"
@@ -87,6 +172,7 @@ export function MiningProfitability() {
                 type="number"
                 step="0.01"
                 value={inputs.btcPrice}
+                disabled={networkMode === 'live'}
                 onChange={(e) =>
                   setInputs({
                     ...inputs,
@@ -111,6 +197,7 @@ export function MiningProfitability() {
                 type="number"
                 step="0.01"
                 value={inputs.networkDifficulty ?? ''}
+                disabled={networkMode === 'live'}
                 onChange={(e) =>
                   setInputs({
                     ...inputs,
@@ -124,6 +211,7 @@ export function MiningProfitability() {
                 type="number"
                 step="0.01"
                 value={inputs.blockRewardBtc ?? ''}
+                disabled={networkMode === 'live'}
                 onChange={(e) =>
                   setInputs({
                     ...inputs,

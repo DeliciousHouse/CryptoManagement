@@ -34,3 +34,13 @@ model User {
 
   @@unique([oauthProvider, oauthProviderUserId])
 }
+
+model MarketSnapshot {
+  id            String   @id @default(cuid())
+  btcPriceUsd   Float
+  difficulty    Float
+  blockRewardBtc Float
+  createdAt     DateTime @default(now())
+
+  @@index([createdAt])
+}
