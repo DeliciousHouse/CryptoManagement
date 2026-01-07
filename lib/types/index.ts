@@ -55,7 +55,7 @@ export interface CapacityResult {
 export interface SiteDimensions {
   width: number; // meters
   length: number; // meters
-  height: number; // meters (optional, for 3D visualization)
+  height?: number; // meters (optional, for 3D visualization)
 }
 
 // Container Configuration

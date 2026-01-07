@@ -9,8 +9,11 @@ import {
 import { setSessionCookie } from '@/lib/auth/session'
 import { upsertUserFromOAuth } from '@/lib/auth/user'
 
-export async function GET(request: NextRequest, { params }: { params: { provider: string } }) {
-  const provider = params.provider
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ provider: string }> }
+) {
+  const { provider } = await params
   const code = request.nextUrl.searchParams.get('code')
   const state = request.nextUrl.searchParams.get('state')
 

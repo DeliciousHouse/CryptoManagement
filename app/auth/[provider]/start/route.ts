@@ -2,13 +2,17 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { buildAuthorizationUrl, persistStateCookie } from '@/lib/auth/oauth'
 import { getProviderConfig } from '@/lib/auth/config'
 
-export async function GET(_request: NextRequest, { params }: { params: { provider: string } }) {
+export async function GET(
+  _request: NextRequest,
+  { params }: { params: Promise<{ provider: string }> }
+) {
   try {
-    const config = getProviderConfig(params.provider)
+    const { provider } = await params
+    const config = getProviderConfig(provider)
     const { authorizationUrl, state, codeVerifier } = buildAuthorizationUrl(config)
 
     const response = NextResponse.redirect(authorizationUrl)
-    persistStateCookie(response, { state, codeVerifier, provider: params.provider })
+    persistStateCookie(response, { state, codeVerifier, provider })
 
     return response
   } catch (error) {

@@ -21,20 +21,31 @@ export function serializeScenario(scenario: MiningScenario): {
  * Deserialize database JSON to MiningScenario
  */
 export function deserializeScenario(data: {
-  calculatorData: CalculatorInputs
-  plannerData: PlannerInputs
+  calculatorData: unknown
+  plannerData: unknown
   id: string
   name?: string | null
   email?: string | null
   createdAt: Date
   updatedAt: Date
 }): MiningScenario {
+  // Prisma Json fields can be null; normalize to empty objects for safer casting.
+  const calculatorData =
+    data.calculatorData && typeof data.calculatorData === 'object'
+      ? (data.calculatorData as CalculatorInputs)
+      : ({} as CalculatorInputs)
+
+  const plannerData =
+    data.plannerData && typeof data.plannerData === 'object'
+      ? (data.plannerData as PlannerInputs)
+      : ({} as PlannerInputs)
+
   return {
     id: data.id,
     name: data.name || undefined,
     email: data.email || undefined,
-    calculatorData: data.calculatorData as CalculatorInputs,
-    plannerData: data.plannerData as PlannerInputs,
+    calculatorData,
+    plannerData,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
   }
