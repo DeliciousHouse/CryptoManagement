@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Bitcoin Mining Site Builder | Containerized Mining Solutions",
+  title: "Bitcoin Mining Site Builder | Modular Mining Solutions",
   description: "Plan, design, and optimize your Bitcoin mining infrastructure with advanced tools and 3D visualization",
 };
 

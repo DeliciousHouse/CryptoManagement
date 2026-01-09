@@ -28,6 +28,7 @@ model User {
   email                  String   @unique
   name                   String?
   avatarUrl              String?  @map("avatar_url")
+  passwordHash           String?  @map("password_hash")
   oauthProvider          String   @map("oauth_provider")
   oauthProviderUserId    String   @map("oauth_provider_user_id")
   createdAt              DateTime @default(now()) @map("created_at")

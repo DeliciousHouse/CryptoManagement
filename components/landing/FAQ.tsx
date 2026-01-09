@@ -4,9 +4,9 @@ import { useState } from 'react'
 
 const faqs = [
   {
-    question: 'What is containerized Bitcoin mining?',
+    question: 'What is modular Bitcoin mining?',
     answer:
-      'Containerized mining involves deploying Bitcoin mining hardware in purpose-built shipping containers. This approach offers mobility, scalability, and optimized cooling and power distribution.',
+      'Modular mining involves deploying Bitcoin mining hardware in standardized, modular enclosures that can be scaled and arranged to fit site constraints. This approach supports incremental expansion, predictable power/cooling distribution, and faster deployments.',
   },
   {
     question: 'How do I calculate mining profitability?',

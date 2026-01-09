@@ -50,6 +50,14 @@ export function Footer() {
                   Scenario Compare
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/sitemap"
+                  className="text-gray-400 hover:text-accent-mining transition-colors"
+                >
+                  Sitemap
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -86,6 +94,22 @@ export function Footer() {
                   className="text-gray-400 hover:text-accent-mining transition-colors"
                 >
                   Disclaimer
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/accessibility"
+                  className="text-gray-400 hover:text-accent-mining transition-colors"
+                >
+                  Accessibility
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/data-deletion"
+                  className="text-gray-400 hover:text-accent-mining transition-colors"
+                >
+                  Data Deletion
                 </Link>
               </li>
             </ul>
