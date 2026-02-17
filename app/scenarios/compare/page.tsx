@@ -43,9 +43,20 @@ export default function ScenarioComparePage() {
   const [loadingSelection, setLoadingSelection] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const loadScenarioList = () => {
+    setLoadingList(true)
+    setError(null)
     fetch('/api/scenarios')
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to load scenarios: ${res.status} ${res.statusText}`)
+        }
+        const data = await res.json()
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid scenarios response format')
+        }
+        return data as ScenarioMetadata[]
+      })
       .then((data) => {
         setScenarios(data)
         setLoadingList(false)
@@ -55,6 +66,10 @@ export default function ScenarioComparePage() {
         setError('Unable to load saved scenarios right now.')
         setLoadingList(false)
       })
+  }
+
+  useEffect(() => {
+    loadScenarioList()
   }, [])
 
   useEffect(() => {
@@ -62,7 +77,7 @@ export default function ScenarioComparePage() {
     if (missingIds.length === 0) return
 
     setLoadingSelection(true)
-    Promise.all(
+    Promise.allSettled(
       missingIds.map(async (id) => {
         const res = await fetch(`/api/scenarios/${id}`)
         if (!res.ok) {
@@ -72,7 +87,16 @@ export default function ScenarioComparePage() {
         return data as MiningScenario
       })
     )
-      .then((fetched) => {
+      .then((results) => {
+        const fetched = results
+          .filter((result): result is PromiseFulfilledResult<MiningScenario> => result.status === 'fulfilled')
+          .map((result) => result.value)
+        
+        if (fetched.length < results.length) {
+          console.warn(`${results.length - fetched.length} scenario(s) failed to load`)
+          setError(`${results.length - fetched.length} scenario(s) could not be loaded.`)
+        }
+        
         setScenarioDetails((prev) => {
           const next = { ...prev }
           for (const scenario of fetched) {
@@ -81,12 +105,8 @@ export default function ScenarioComparePage() {
           return next
         })
       })
-      .catch((err) => {
-        console.error('Failed to load selected scenarios', err)
-        setError('Unable to load one or more selected scenarios.')
-      })
       .finally(() => setLoadingSelection(false))
-  }, [selectedIds, scenarioDetails])
+  }, [selectedIds])
 
   const selectedScenarios: MiningScenario[] = selectedIds
     .map((id) => scenarioDetails[id])
@@ -98,7 +118,7 @@ export default function ScenarioComparePage() {
       const generatorCapacity = (scenario.plannerData?.generators || []).reduce(
         (total, generator) => total + (generator.capacity || 0),
         0
-      ) || (scenario.plannerData?.generatorCount || 0) * 1000
+      )
 
       const estimatedInvestment =
         typeof scenario.calculatorData.hardwareCostUsd === 'number' &&
@@ -161,9 +181,22 @@ export default function ScenarioComparePage() {
   const formatDeltaRow = (value: number, baseValue?: number) => {
     if (typeof baseValue !== 'number') return '—'
     const delta = value - baseValue
-    if (Math.abs(delta) < 0.01) return '±0'
-    const prefix = delta > 0 ? '+' : '−'
-    return `${prefix}${formatNumber(Math.abs(delta))}`
+    const absDelta = Math.abs(delta)
+    const absBase = Math.abs(baseValue)
+
+    // Treat very small deltas as effectively zero using a scale-aware threshold:
+    // - for non-zero base values: small relative change (e.g. <0.1%)
+    // - for zero base values: very small absolute change
+    const relativeThreshold = 0.001 // 0.1%
+    const absoluteThreshold = 1e-4
+    const isEffectivelyZero =
+      (absBase > 0 && absDelta / absBase < relativeThreshold) ||
+      (absBase === 0 && absDelta < absoluteThreshold)
+
+    if (isEffectivelyZero) return '±0'
+
+    const prefix = delta > 0 ? '+' : '-'
+    return `${prefix}${formatNumber(absDelta)}`
   }
 
   return (
@@ -194,6 +227,13 @@ export default function ScenarioComparePage() {
           </div>
           {loadingList ? (
             <p className="text-gray-400">Loading scenarios…</p>
+          ) : error && scenarios.length === 0 ? (
+            <div className="space-y-3">
+              <p className="text-red-400">{error}</p>
+              <Button onClick={loadScenarioList} variant="outline" size="sm">
+                Retry
+              </Button>
+            </div>
           ) : scenarios.length === 0 ? (
             <p className="text-gray-400">No saved scenarios available yet.</p>
           ) : (
@@ -222,7 +262,10 @@ export default function ScenarioComparePage() {
                       <input
                         type="checkbox"
                         checked={selected}
-                        onChange={() => toggleSelection(scenario.id)}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          toggleSelection(scenario.id)
+                        }}
                         className="w-5 h-5 accent-orange-500"
                       />
                     </div>
@@ -369,7 +412,9 @@ export default function ScenarioComparePage() {
                 <h3 className="text-lg font-semibold mb-4">Power Utilization</h3>
                 <div className="space-y-3">
                   {comparisonData.map((item) => {
-                    const width = Math.max(4, (item.powerUtilization / maxUtilization) * 100)
+                    const cappedUtilization = Math.min(item.powerUtilization, 100)
+                    const width = Math.max(4, (cappedUtilization / 100) * 100)
+                    const isOverCapacity = item.powerUtilization > 100
                     return (
                       <div key={item.scenario.id}>
                         <div className="flex justify-between text-sm text-gray-300 mb-1">
@@ -381,7 +426,7 @@ export default function ScenarioComparePage() {
                               ? 'text-yellow-300'
                               : 'text-green-400'
                           }>
-                            {formatPercent(item.powerUtilization)}
+                            {formatPercent(item.powerUtilization)}{isOverCapacity ? ' ⚠️' : ''}
                           </span>
                         </div>
                         <div className="w-full bg-surface rounded-full h-3 overflow-hidden">
@@ -401,7 +446,7 @@ export default function ScenarioComparePage() {
                   })}
                 </div>
                 <p className="text-xs text-gray-500 mt-3">
-                  Utilization is estimated from generator capacity (1,000 kW each) versus the scenario&apos;s stored power draw. When no generators are defined, utilization defaults to 0%.
+                  Utilization is estimated from total generator capacity versus the scenario&apos;s stored power draw. When no generators are defined, utilization defaults to 0%.
                 </p>
               </Card>
             </div>
