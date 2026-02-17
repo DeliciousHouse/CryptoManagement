@@ -88,9 +88,9 @@ export default function ScenarioComparePage() {
       })
     )
       .then((results) => {
-        const fetched = results
-          .filter((result): result is PromiseFulfilledResult<MiningScenario> => result.status === 'fulfilled')
-          .map((result) => result.value)
+        const fetched = results.flatMap((result) =>
+          result.status === 'fulfilled' ? [result.value] : []
+        )
         
         if (fetched.length < results.length) {
           console.warn(`${results.length - fetched.length} scenario(s) failed to load`)
@@ -262,7 +262,7 @@ export default function ScenarioComparePage() {
                       <input
                         type="checkbox"
                         checked={selected}
-                        onClick={(event) => {
+                        onChange={(event) => {
                           event.stopPropagation()
                           toggleSelection(scenario.id)
                         }}
@@ -413,7 +413,7 @@ export default function ScenarioComparePage() {
                 <div className="space-y-3">
                   {comparisonData.map((item) => {
                     const cappedUtilization = Math.min(item.powerUtilization, 100)
-                    const width = Math.max(4, (cappedUtilization / 100) * 100)
+                    const width = Math.max(4, cappedUtilization)
                     const isOverCapacity = item.powerUtilization > 100
                     return (
                       <div key={item.scenario.id}>
