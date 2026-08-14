@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { Button } from '@/components/ui/Button'
 
 export function Nav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -32,6 +33,18 @@ export function Nav() {
             >
               Home
             </Link>
+            <div className="pl-2 flex items-center gap-3">
+              <Link href="/sign-in">
+                <Button variant="secondary" size="md">
+                  Sign in
+                </Button>
+              </Link>
+              <Link href="/create-account">
+                <Button variant="outline" size="md">
+                  Create account
+                </Button>
+              </Link>
+            </div>
           </div>
           <button
             className="md:hidden text-foreground"
@@ -84,10 +97,21 @@ export function Nav() {
             >
               Home
             </Link>
+            <div className="pt-2 flex flex-col gap-3">
+              <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="secondary" size="md" className="w-full">
+                  Sign in
+                </Button>
+              </Link>
+              <Link href="/create-account" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" size="md" className="w-full">
+                  Create account
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
       </div>
     </nav>
   )
 }
-

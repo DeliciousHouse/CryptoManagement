@@ -9,7 +9,7 @@ export function Hero() {
       <div className="absolute inset-0 bg-gradient-to-b from-accent-mining/10 via-transparent to-transparent" />
       <div className="relative z-10 max-w-5xl mx-auto px-6 text-center animate-fade-in">
         <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-accent-mining to-accent-btc bg-clip-text text-transparent">
-          Containerized Bitcoin Mining Solutions
+          Modular Bitcoin Mining Solutions
         </h1>
         <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto">
           Plan, design, and optimize your mining infrastructure with advanced

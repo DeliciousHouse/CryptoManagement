@@ -3,11 +3,11 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { CalculatorInputs } from '@/lib/types'
+import { CalculatorInputs, PlannerInputs } from '@/lib/types'
 
 interface CalculatorSaveButtonProps {
   calculatorData: CalculatorInputs
-  plannerData?: any
+  plannerData?: PlannerInputs
 }
 
 export function CalculatorSaveButton({
@@ -109,4 +109,3 @@ export function CalculatorSaveButton({
     </div>
   )
 }
-

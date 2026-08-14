@@ -15,7 +15,7 @@ const steps = [
     number: '03',
     title: 'Deployment',
     description:
-      'Containerized units are delivered and installed with minimal site disruption.',
+      'Modular units are delivered and installed with minimal site disruption.',
   },
   {
     number: '04',

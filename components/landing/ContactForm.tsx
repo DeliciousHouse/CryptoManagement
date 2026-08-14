@@ -55,7 +55,7 @@ export function ContactForm() {
           Get in Touch
         </h2>
         <p className="text-xl text-gray-400 text-center mb-12">
-          Have questions? We'd love to hear from you.
+          Have questions? We’d love to hear from you.
         </p>
         <form onSubmit={handleSubmit} className="space-y-6">
           <Input
@@ -112,4 +112,3 @@ export function ContactForm() {
     </section>
   )
 }
-

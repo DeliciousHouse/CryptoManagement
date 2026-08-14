@@ -48,7 +48,13 @@ Create a `.env` file:
 ```env
 DATABASE_URL=postgresql://user:password@localhost:5432/cryptocoin
 NODE_ENV=development
+APP_URL=http://localhost:3000
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+SESSION_SECRET=replace-with-a-long-random-string
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
 ```
 
 4. **Run database migrations**
@@ -131,6 +137,16 @@ cryptocoin/
 - `GET /api/scenarios/[id]` - Get scenario by ID
 - `DELETE /api/scenarios/[id]` - Delete scenario
 - `POST /api/contact` - Submit contact form
+- `GET /auth/:provider/start` - Begin OAuth 2.0 login (Google, GitHub)
+- `GET /auth/:provider/callback` - Complete OAuth 2.0 login and issue session cookie
+
+## Authentication (OAuth 2.0)
+
+- Uses Authorization Code flow with PKCE for Google and GitHub.
+- State parameter is stored in an HTTP-only cookie and validated on callback to prevent CSRF.
+- Authorization codes are exchanged server-side for provider access tokens.
+- A Prisma-backed `User` table stores `email`, `name`, `avatar_url`, `oauth_provider`, `oauth_provider_user_id`, and timestamps. Existing accounts are linked by email when a new provider login occurs.
+- Successful sign-ins set an HTTP-only, signed session cookie (`session_token`) scoped to the application domain.
 
 ## Development
 

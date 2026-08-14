@@ -8,6 +8,14 @@ export interface CalculatorInputs {
   networkDifficulty?: number; // optional, for display / future formula upgrades
   blockRewardBtc?: number; // optional, BTC
   hardwareCostUsd?: number; // optional, USD (capex)
+  marketSnapshot?: MarketSnapshot; // optional snapshot used (for deterministic saved scenarios)
+}
+
+export interface MarketSnapshot {
+  btcPriceUsd: number
+  difficulty: number
+  blockRewardBtc: number
+  updatedAt: string // ISO timestamp
 }
 
 // Profit Calculation Results
@@ -47,7 +55,7 @@ export interface CapacityResult {
 export interface SiteDimensions {
   width: number; // meters
   length: number; // meters
-  height: number; // meters (optional, for 3D visualization)
+  height?: number; // meters (optional, for 3D visualization)
 }
 
 // Container Configuration
