@@ -12,8 +12,8 @@
     "verify": "npm run test && npm run lint:scenario-comparison && npm run build"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.1.0",
-    "@prisma/client": "^7.1.0",
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.2",
     "bcryptjs": "^3.0.2",
