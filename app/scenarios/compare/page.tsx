@@ -61,6 +61,8 @@ export default function ScenarioComparePage() {
     const missingIds = selectedIds.filter((id) => !scenarioDetails[id])
     if (missingIds.length === 0) return
 
+    // The selection effect owns this request lifecycle.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingSelection(true)
     Promise.all(
       missingIds.map(async (id) => {

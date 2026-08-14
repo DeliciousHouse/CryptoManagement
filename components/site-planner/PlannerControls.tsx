@@ -178,6 +178,8 @@ export function PlannerControls({
 
   // Regenerate layout when key parameters change
   useEffect(() => {
+    // These primitive dependencies intentionally synchronize derived layout state.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     regenerateLayout()
   }, [
     inputs.containerCount,
