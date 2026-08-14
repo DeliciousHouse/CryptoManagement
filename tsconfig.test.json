@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./build/tests",
+    "incremental": false,
+    "noEmit": false,
+    "isolatedModules": false
+  },
+  "include": [
+    "tests/**/*.ts",
+    "lib/calculations/profitability.ts",
+    "lib/types/**/*.ts"
+  ]
+}

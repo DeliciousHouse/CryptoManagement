@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -39,13 +39,12 @@ export default function ScenarioComparePage() {
   const [scenarios, setScenarios] = useState<ScenarioMetadata[]>([])
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [scenarioDetails, setScenarioDetails] = useState<Record<string, MiningScenario>>({})
+  const scenarioDetailsRef = useRef<Record<string, MiningScenario>>({})
   const [loadingList, setLoadingList] = useState(true)
   const [loadingSelection, setLoadingSelection] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const loadScenarioList = () => {
-    setLoadingList(true)
-    setError(null)
     fetch('/api/scenarios')
       .then(async (res) => {
         if (!res.ok) {
@@ -73,10 +72,9 @@ export default function ScenarioComparePage() {
   }, [])
 
   useEffect(() => {
-    const missingIds = selectedIds.filter((id) => !scenarioDetails[id])
+    const missingIds = selectedIds.filter((id) => !scenarioDetailsRef.current[id])
     if (missingIds.length === 0) return
 
-    setLoadingSelection(true)
     Promise.allSettled(
       missingIds.map(async (id) => {
         const res = await fetch(`/api/scenarios/${id}`)
@@ -91,19 +89,18 @@ export default function ScenarioComparePage() {
         const fetched = results.flatMap((result) =>
           result.status === 'fulfilled' ? [result.value] : []
         )
-        
+
         if (fetched.length < results.length) {
           console.warn(`${results.length - fetched.length} scenario(s) failed to load`)
           setError(`${results.length - fetched.length} scenario(s) could not be loaded.`)
         }
-        
-        setScenarioDetails((prev) => {
-          const next = { ...prev }
-          for (const scenario of fetched) {
-            next[scenario.id!] = scenario
-          }
-          return next
-        })
+
+        const next = { ...scenarioDetailsRef.current }
+        for (const scenario of fetched) {
+          next[scenario.id!] = scenario
+        }
+        scenarioDetailsRef.current = next
+        setScenarioDetails(next)
       })
       .finally(() => setLoadingSelection(false))
   }, [selectedIds])
@@ -120,15 +117,9 @@ export default function ScenarioComparePage() {
         0
       )
 
-      const estimatedInvestment =
-        typeof scenario.calculatorData.hardwareCostUsd === 'number' &&
-        scenario.calculatorData.hardwareCostUsd > 0
-          ? scenario.calculatorData.hardwareCostUsd
-          : profit.yearlyCost * 10
-
       const paybackMonths =
         profit.monthlyProfit > 0
-          ? estimatedInvestment / profit.monthlyProfit
+          ? profit.investment / profit.monthlyProfit
           : null
 
       const powerUtilization =
@@ -159,22 +150,21 @@ export default function ScenarioComparePage() {
     return maxValue
   }, [comparisonData])
 
-  const maxUtilization = useMemo(() => {
-    const maxValue = Math.max(100, ...comparisonData.map((item) => item.powerUtilization))
-    return maxValue
-  }, [comparisonData])
-
   const toggleSelection = (id: string) => {
     setError(null)
+    const isSelected = selectedIds.includes(id)
+    if (!isSelected && selectedIds.length >= 5) {
+      setError('You can compare up to 5 scenarios at a time.')
+      return
+    }
+    if (!isSelected && !scenarioDetailsRef.current[id]) {
+      setLoadingSelection(true)
+    }
     setSelectedIds((prev) => {
       if (prev.includes(id)) {
         return prev.filter((existing) => existing !== id)
       }
-      if (prev.length >= 5) {
-        setError('You can compare up to 5 scenarios at a time.')
-        return prev
-      }
-      return [...prev, id]
+      return prev.length < 5 ? [...prev, id] : prev
     })
   }
 
@@ -230,7 +220,15 @@ export default function ScenarioComparePage() {
           ) : error && scenarios.length === 0 ? (
             <div className="space-y-3">
               <p className="text-red-400">{error}</p>
-              <Button onClick={loadScenarioList} variant="outline" size="sm">
+              <Button
+                onClick={() => {
+                  setLoadingList(true)
+                  setError(null)
+                  loadScenarioList()
+                }}
+                variant="outline"
+                size="sm"
+              >
                 Retry
               </Button>
             </div>

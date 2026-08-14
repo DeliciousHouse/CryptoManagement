@@ -59,6 +59,7 @@ export function calculateMiningProfit(inputs: CalculatorInputs): ProfitResult {
     yearlyRevenue,
     yearlyCost,
     yearlyProfit,
+    investment: estimatedInvestment,
     roi,
     btcPerMonthPerTh,
   }
