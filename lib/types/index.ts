@@ -29,6 +29,7 @@ export interface ProfitResult {
   yearlyRevenue: number;
   yearlyCost: number;
   yearlyProfit: number;
+  investment: number;
   roi: number; // percentage
   btcPerMonthPerTh: number; // canonical yield assumption used for reward forecasts
 }
