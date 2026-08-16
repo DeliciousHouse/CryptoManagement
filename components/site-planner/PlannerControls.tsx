@@ -178,6 +178,8 @@ export function PlannerControls({
 
   // Regenerate layout when key parameters change
   useEffect(() => {
+    // The generated positions are derived in the parent state for the 3D canvas.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     regenerateLayout()
   }, [
     inputs.containerCount,
